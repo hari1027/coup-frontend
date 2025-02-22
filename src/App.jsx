@@ -380,14 +380,51 @@ const sendMessage = (message) => {
       showNotification(resp.notifyMessage, "info");
       setSelectedOption(resp.actionPlayed);
       setStartTimer(true)
-      setTime(30)
+      setTime(12)
+
+      if(resp.actionPlayed === "Assassin a player with 3 coins" && resp.person === nameRef.current){
+        let newTotalCoins = totalCoinsRef.current;
+        let newPlayersWithCoins = playersWithCoinsRef.current;
+        let newPlayersWithCards = playersWithTheirCards.current;
+
+        newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 3;
+        newTotalCoins = newTotalCoins + 3;
+
+        let message1 = {
+          roomId: roomIdRef.current,
+          type: "updated",
+          totalCoins: newTotalCoins,
+          playersWithTheirCards: newPlayersWithCards,
+          playersWithCoins: newPlayersWithCoins,
+        };
+        sendMessage(message1)
+      }
+      if(resp.actionPlayed === "Coup a player with 7 coins" && resp.person === nameRef.current){
+        let newTotalCoins = totalCoinsRef.current;
+        let newPlayersWithCoins = playersWithCoinsRef.current;
+        let newPlayersWithCards = playersWithTheirCards.current;
+
+        newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 7;
+        newTotalCoins = newTotalCoins + 7;
+
+        let message1 = {
+          roomId: roomIdRef.current,
+          type: "updated",
+          totalCoins: newTotalCoins,
+          playersWithTheirCards: newPlayersWithCards,
+          playersWithCoins: newPlayersWithCoins,
+        };
+        sendMessage(message1)
+      }
 
       if (
         resp.actionPlayed === "Take One coin from bank" ||
         resp.actionPlayed === "Coup a player with 14 coins"
       ) {
         if (resp.person === nameRef.current) {
-          performAction();
+          performAction(false);
+          setTime(0)
+          setStartTimer(false)
         }
       } else {
         if (resp.target !== undefined) {
@@ -432,7 +469,7 @@ const sendMessage = (message) => {
                 setEnableChallengeButton(true);
               }
             }
-          }, 10000);
+          }, 6000);
         } else {
           if (
             resp.person !== nameRef.current &&
@@ -460,13 +497,13 @@ const sendMessage = (message) => {
               type : "noChallengeOrBlock"
             }
             if (resp.person === nameRef.current) {
+              performAction(false);
               sendMessage(message)
-              performAction();
             }
             setStartTimer(false)
             setTime(0)
           }
-        }, 30000);
+        }, 12000);
       }
     }
     if (resp.type === "challenge") {
@@ -508,10 +545,7 @@ const sendMessage = (message) => {
       setEnableChallengeButton(false)
     }
     if (resp.type === "you won" && resp.to === nameRef.current) {
-      performAction();
-      if (selectedOptionRef.current !== "Exchange your card with deck" && selectedOptionRef.current !== "Coup a player with 7 coins" && selectedOptionRef.current !== "Take Two coins from bank") {
-        replaceWithNewCard();
-      }
+      performAction(true);
     }
     if (resp.type === "you lost" && resp.to === nameRef.current) {
       performLoseCardLogic();
@@ -1390,7 +1424,7 @@ const sendMessage = (message) => {
     sendMessage(message)
   };
 
-  const performAction = async () => {
+  const performAction = async (shouldReplaceCard) => {
     let newTotalCoins = totalCoinsRef.current;
     let newPlayersWithCoins = playersWithCoinsRef.current;
     let newPlayersWithCards = playersWithTheirCards.current;
@@ -1445,16 +1479,16 @@ const sendMessage = (message) => {
       sendMessage(message)
     }
     if (selectedOptionRef.current === "Assassin a player with 3 coins") {
-      newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 3;
-      newTotalCoins = newTotalCoins + 3;
-      let message1 = {
-        roomId: roomIdRef.current,
-        type: "updated",
-        totalCoins: newTotalCoins,
-        playersWithTheirCards: newPlayersWithCards,
-        playersWithCoins: newPlayersWithCoins,
-      };
-      sendMessage(message1)
+      // newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 3;
+      // newTotalCoins = newTotalCoins + 3;
+      // let message1 = {
+      //   roomId: roomIdRef.current,
+      //   type: "updated",
+      //   totalCoins: newTotalCoins,
+      //   playersWithTheirCards: newPlayersWithCards,
+      //   playersWithCoins: newPlayersWithCoins,
+      // };
+      // sendMessage(message1)
 
       let message2 = {
         roomId: roomIdRef.current,
@@ -1488,16 +1522,16 @@ const sendMessage = (message) => {
       sendMessage(message2)
     }
     if (selectedOptionRef.current === "Coup a player with 7 coins") {
-      newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 7;
-      newTotalCoins = newTotalCoins + 7;
-      let message1 = {
-        roomId: roomIdRef.current,
-        type: "updated",
-        totalCoins: newTotalCoins,
-        playersWithTheirCards: newPlayersWithCards,
-        playersWithCoins: newPlayersWithCoins,
-      };
-      sendMessage(message1)
+      // newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 7;
+      // newTotalCoins = newTotalCoins + 7;
+      // let message1 = {
+      //   roomId: roomIdRef.current,
+      //   type: "updated",
+      //   totalCoins: newTotalCoins,
+      //   playersWithTheirCards: newPlayersWithCards,
+      //   playersWithCoins: newPlayersWithCoins,
+      // };
+      // sendMessage(message1)
 
       let message2 = {
         roomId: roomIdRef.current,
@@ -1506,6 +1540,9 @@ const sendMessage = (message) => {
         from : nameRef.current
       };
       sendMessage(message2)
+    }
+    if ((selectedOptionRef.current !== "Exchange your card with deck" && selectedOptionRef.current !== "Coup a player with 7 coins" && selectedOptionRef.current !== "Take Two coins from bank") && (shouldReplaceCard === true)) {
+      replaceWithNewCard();
     }
     if(selectedOptionRef.current === "Take One coin from bank" || selectedOptionRef.current === "Take Two coins from bank" || selectedOptionRef.current === "Take Three coins from bank" || selectedOptionRef.current === "Steal 2 coins from other player"){
       nextTurnFunction()
@@ -1658,7 +1695,7 @@ const sendMessage = (message) => {
     sendMessage(message)
   };
 
-  const [time, setTime] = useState(30);
+  const [time, setTime] = useState(12);
   const [startTimer, setStartTimer] = useState(false);
 
   useEffect(() => {
@@ -2000,8 +2037,7 @@ const sendMessage = (message) => {
                       ? "bg-green-500 hover:bg-green-600 transition cursor-pointer "
                       : "bg-red-500 cursor-not-allowed"
                   }`}
-                  disabled={(!enableBlockButton && playersInGameRef.current.includes(nameRef.current))}
-                  onClick={onClickBlock}
+                  onClick={(enableBlockButton && playersInGameRef.current.includes(nameRef.current)) ? onClickBlock : null}
                 >
                   Block
                 </button>
@@ -2011,8 +2047,7 @@ const sendMessage = (message) => {
                       ? "bg-green-500 hover:bg-green-600 transition cursor-pointer "
                       : "bg-red-500 cursor-not-allowed"
                   }`}
-                  disabled={(!enableChallengeButton && playersInGameRef.current.includes(nameRef.current))}
-                  onClick={onClickChallenge}
+                  onClick={(enableChallengeButton && playersInGameRef.current.includes(nameRef.current)) ? onClickChallenge : null}
                 >
                   Challenge
                 </button>
@@ -2070,7 +2105,19 @@ const sendMessage = (message) => {
                       }`}
                     </h2>
                     <ul className="text-black flex flex-col items-center">
-                      {playersInGameRef.current
+                      {(selectedOption === "Steal 2 coins from other player") ? 
+                      Object.entries(playersWithCoinsRef.current)
+                      .filter(([member, coins]) => member !== name && coins > 1) // Exclude current player & check coin count
+                      .map(([member]) => (
+                        <li
+                          key={member}
+                          className="px-2 py-2 cursor-pointer rounded-md"
+                          onClick={() => confirmPlayerSelection(member)}
+                        >
+                          {member}
+                        </li>
+                      )) :
+                      playersInGameRef.current
                         .filter((member) => member !== name) // Exclude current player
                         .map((member) => (
                           <li
