@@ -1736,9 +1736,9 @@ const sendMessage = (message) => {
           </div>
         </div>
       )}
-      {(inRoom && !rulesScreen) && (
+      {inRoom && (
         <div className="flex flex-row items-center justify-center min-h-screen bg-white text-gray-900">
-          {!inGame && (
+          {(!inGame && !rulesScreen) && (
             <div
               className={`w-[85%] ${
                 window.innerWidth >= 2560
@@ -1847,7 +1847,7 @@ const sendMessage = (message) => {
             </div>
           )}
 
-          {inGame && (
+          {(inGame && !rulesScreen) && (
             <div
               className={`relative w-[85%] ${
                 window.innerWidth >= 2560
@@ -2231,6 +2231,63 @@ const sendMessage = (message) => {
             </div>
           )}
 
+          {rulesScreen && (
+           <div
+             className={`w-[85%] ${
+               window.innerWidth >= 2560
+                ? "max-w-8xl"
+                : window.innerWidth >= 1440
+                ? "max-w-5xl"
+                : window.innerWidth >= 1280
+                ? "max-w-4xl"
+                : window.innerWidth >= 1024
+                ? "max-w-[630px]"
+                 : ""
+                } flex flex-col justify-center items-center p-6 bg-gray-100 m-4 gap-10`}
+            >
+            <div className="overflow-x-auto">
+             <table className="border border-gray-300 rounded-lg shadow-lg">
+                <thead className="bg-gray-200">
+                <tr>
+                  <th className="py-2 px-2 border-b text-center">Name</th>
+                  <th className="py-2 px-2 border-b text-center">Action</th>
+                  <th className="py-2 px-2 border-b text-center">Counter Action</th>
+                </tr>
+                </thead>
+              <tbody>
+               {rules.map((rule, index) => (
+                 <tr key={index} className="odd:bg-white even:bg-gray-100">
+                 <td className="py-2 px-2 border-b text-center">{rule.name}</td>
+                 <td className="py-2 px-2 border-b text-center">{rule.action}</td>
+                 <td className="py-2 px-2 border-b text-center">{rule.counterAction}</td>
+                 </tr>
+                ))}
+              </tbody>
+             </table>
+            </div> 
+            <div>
+              <ul className="text-black flex flex-col items-center mt-2">
+                {gamerules.map((item) => (
+                  <li
+                    key={item}
+                      className="px-2 py-2 cursor-pointer rounded-md"
+                    >
+                     {item}
+                  </li>
+                ))}
+              </ul>
+            </div> 
+            <div>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 cursor-pointer"
+              onClick={()=>{setRulesScreen(false)}}
+            >
+              Close
+            </button> 
+            </div>
+          </div>
+          )}
+
           <div className="hidden lg:flex flex-[15%] flex-col items-center justify-center space-y-4 border-l-2 border-black h-screen">
             {members.map(
               (member, index) =>
@@ -2309,52 +2366,6 @@ const sendMessage = (message) => {
                   </div>
                 )
             )}
-          </div>
-        </div>
-      )}
-     {rulesScreen && (
-      <div className= "absolute flex items-center justify-center">
-       <div className="flex flex-col gap-10 items-center m-4">
-            <div className="overflow-x-auto">
-             <table className="min-w-full border border-gray-300 rounded-lg shadow-lg">
-                <thead className="bg-gray-200">
-                <tr>
-                  <th className="py-1 px-2 border-b text-center">Name</th>
-                  <th className="py-1 px-2 border-b text-center">Action</th>
-                  <th className="py-1 px-2 border-b text-center">Counter Action</th>
-                </tr>
-                </thead>
-              <tbody>
-               {rules.map((rule, index) => (
-                 <tr key={index} className="odd:bg-white even:bg-gray-100">
-                 <td className="py-1 px-2 border-b text-center">{rule.name}</td>
-                 <td className="py-1 px-2 border-b text-center">{rule.action}</td>
-                 <td className="py-1 px-2 border-b text-center">{rule.counterAction}</td>
-                 </tr>
-                ))}
-              </tbody>
-             </table>
-            </div> 
-            <div>
-              <ul className="text-black flex flex-col items-center mt-2">
-                {gamerules.map((item) => (
-                  <li
-                    key={item}
-                      className="px-2 py-2 cursor-pointer rounded-md"
-                    >
-                     {item}
-                  </li>
-                ))}
-              </ul>
-            </div> 
-            <div>
-            <button
-              className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 cursor-pointer"
-              onClick={()=>{setRulesScreen(false)}}
-            >
-              Close
-            </button> 
-            </div>
           </div>
         </div>
       )}
