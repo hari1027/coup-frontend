@@ -15,7 +15,7 @@ const NotificationBar = ({ message, type, onClose }) => {
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -50, opacity: 0 }}
-      className={`fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg p-4 rounded-lg shadow-lg flex items-center justify-between ${typeStyles[type]}`}
+      className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 w-[90%] max-w-lg p-4 rounded-lg shadow-lg flex items-center justify-between ${typeStyles[type]}`}
     >
       <span className="text-sm font-semibold">{message}</span>
       <button onClick={onClose} className="ml-4">

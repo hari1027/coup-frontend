@@ -67,6 +67,7 @@ function App() {
     useState(false);
   const [waitingToLoseCharacter , setWaitingToLoseCharacter] = useState(false)
   const [waitingToLoseCharacterViaChallenge , setWaitingToLoseCharacterViaChallenge] = useState(false)
+  const [rulesScreen , setRulesScreen] = useState(false);
 
   let actionOptions = [
     "Take One coin from bank",
@@ -78,6 +79,25 @@ function App() {
     "Assassin a player with 3 coins",
     "Exchange your card with deck",
   ];
+
+  const rules = [
+    {name:"Income" , action: "Take One coin from bank" , counterAction : "-"},
+    {name:"Foreign Aid" , action: "Take Two coins from bank" , counterAction : "-"},
+    {name:"Coup" , action: "Coup a player with 7 coins" , counterAction : "-"},
+    {name:"Super Coup" , action: "Coup a player with 14 coins" , counterAction : "-"},
+    {name:"Duke" , action: "Take Three coins from bank" , counterAction : "Blocks Foreign Aid"},
+    {name:"Captain" , action: "Steal 2 coins from other player" , counterAction : "Blocks Stealing"},
+    {name:"Assassin" , action: "Assassin a player with 3 coins" , counterAction : "-"},
+    {name:"Ambassador" , action: "Exchange your card with deck" , counterAction : "Blocks Stealing"},
+    {name:"Contessa" , action: "-" , counterAction : "Blocks Assassining and Coup but not Super Coup"}
+  ]
+
+  const gamerules = [
+    "Action button will be enabled only if it is your turn",
+    "Challenge and block button will be enabled only if the action taken have Challenged or blocked option",
+    "The action can be chllenged or blocked within 12 seconds only",
+    "If a action is taken aggainst a particular player he will have the option to challenge or block first for first 6 seconds then the button to challenge or block will be enabled to all including targetted person also"
+  ]
 
   const showNotification = (msg, type) => {
     setNotification({ message: msg, type, show: true });
@@ -193,12 +213,8 @@ const connectWebSocket = () => {
 
   wsRef.current.onmessage = (event) => {
     const resp = JSON.parse(event.data);
-    console.log(resp)
-    // let entered = false
     if (resp.roomId === roomIdRef.current) {
-      // console.log("In")
       handleWebSocketMessage(resp);
-      // entered = true
     }
   };
 };
@@ -235,43 +251,8 @@ const sendMessage = (message) => {
   }
 };
 
-
-// useEffect(() => {
-
-//   // Set up event handlers
-//   ws.onopen = () => {
-//     console.log("Connected to WebSocket server");
-//   };
-
-//   ws.onerror = (error) => {
-//     console.error("WebSocket error:", error);
-//   };
-
-//   ws.onclose = () => {
-//     console.log("WebSocket connection closed");
-//   };
-
-//   ws.onmessage = (event) => {
-//     const resp = JSON.parse(event.data);
-//     console.log(resp)
-//     // let entered = false
-//     if (resp.roomId === roomIdRef.current) {
-//       // console.log("In")
-//       handleWebSocketMessage(resp);
-//       // entered = true
-//     }
-//   };
-
-//   // Cleanup function
-//   return () => {
-//     if (ws.current) {
-//       ws.current.close();
-//     }
-//   };
-// }, []); // Empty dependency array to run only once
-
-
   const handleWebSocketMessage  = (resp) => {
+    console.log(resp)
     if (resp.type === "join") {
       showNotification(resp.notifyMessage, "info");
       // console.log(resp.notifyMessage)
@@ -312,14 +293,17 @@ const sendMessage = (message) => {
       setTotalCoins(resp.totalCoins);
       setPlayersWithTheirCards(resp.playersWithTheirCards);
       setPlayersWithCoins(resp.playersWithCoins);
+      setRulesScreen(false)
       setInGame(true);
 
+      if(nameRef.current === resp.from){
       let message = {
         roomId: roomIdRef.current,
         type: "turn",
         person: membersRef.current[0],
       };
       sendMessage(message)
+    }
     }
     if (resp.type === "updated") {
       if (resp.deck !== undefined) {
@@ -597,6 +581,7 @@ const sendMessage = (message) => {
       setBlockedBy("")
       setTargetedMember("")
       setIsActionIsBlockedOrChallenged(false)
+      setRulesScreen(false)
       setStartTimer(false)
       setTime(0)
       if (actionTimeoutRef.current) {
@@ -605,7 +590,7 @@ const sendMessage = (message) => {
       }
       setTimeout(()=>{
         setInGame(false)
-      },3000)
+      },5000)
     }
   }
 
@@ -810,6 +795,7 @@ const sendMessage = (message) => {
   function commonOpperationsForKickedLeaveDelete() {
     if (inRoom) {
       setInRoom(false);
+      setRulesScreen(false)
     }
     setRoomId("");
     setName("");
@@ -1147,14 +1133,13 @@ const sendMessage = (message) => {
         totalCoins: totalCoins,
         playersWithTheirCards: newPlayersWithCards,
         playersWithCoins: newPlayersWithCoins,
+        from : nameRef.current
       };
-      console.log(message)
       sendMessage(message)
     }
   }
 
   const handleOptionClick = (option) => {
-    console.log(`You Selected: ${option}`);
     setShowOptions(false);
 
     if (option === "Coup a player with 7 coins" && playersWithCoinsRef.current[nameRef.current] < 7) {
@@ -1353,6 +1338,7 @@ const sendMessage = (message) => {
 
   const performLoseCardLogic = async () => {
     if (playersWithTheirCardsRef.current[nameRef.current].length === 2) {
+      setRulesScreen(false)
       setShowSelectLossCharacterBox(true);
     } else {
       let card = playersWithTheirCardsRef.current[nameRef.current].pop();
@@ -1370,14 +1356,6 @@ const sendMessage = (message) => {
 
       newPlayersInGame = newPlayersInGame.filter((player) => player !== nameRef.current);
 
-      if(newPlayersInGame.length < 2){
-        let message = {
-          roomId : roomIdRef.current,
-          type : "gameOver",
-          winner : newPlayersInGame[0]
-        }
-        sendMessage(message)
-      } else {
       let message = {
         roomId: roomIdRef.current,
         type: "updated",
@@ -1386,13 +1364,20 @@ const sendMessage = (message) => {
         playersWithTheirCards: newPlayersWithCards,
         playersWithCoins: newPlayersWithCoins,
         playersInGame: newPlayersInGame,
-      };
+      }
       sendMessage(message)
+      if(newPlayersInGame.length < 2){
+        let message = {
+          roomId : roomIdRef.current,
+          type : "gameOver",
+          winner : newPlayersInGame[0]
+        }
+        sendMessage(message)
+      }
+    }
       if(turnRef.current === nameRef.current){
         nextTurnFunction()
       }
-    }
-    }
   };
 
   const replaceWithNewCard = async () => {
@@ -1479,17 +1464,6 @@ const sendMessage = (message) => {
       sendMessage(message)
     }
     if (selectedOptionRef.current === "Assassin a player with 3 coins") {
-      // newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 3;
-      // newTotalCoins = newTotalCoins + 3;
-      // let message1 = {
-      //   roomId: roomIdRef.current,
-      //   type: "updated",
-      //   totalCoins: newTotalCoins,
-      //   playersWithTheirCards: newPlayersWithCards,
-      //   playersWithCoins: newPlayersWithCoins,
-      // };
-      // sendMessage(message1)
-
       let message2 = {
         roomId: roomIdRef.current,
         type: "assassin",
@@ -1499,6 +1473,7 @@ const sendMessage = (message) => {
       sendMessage(message2)
     }
     if (selectedOptionRef.current === "Exchange your card with deck") {
+      setRulesScreen(false)
       setShowAmbassadorScreen(true);
     }
     if (selectedOptionRef.current === "Coup a player with 14 coins") {
@@ -1522,17 +1497,6 @@ const sendMessage = (message) => {
       sendMessage(message2)
     }
     if (selectedOptionRef.current === "Coup a player with 7 coins") {
-      // newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 7;
-      // newTotalCoins = newTotalCoins + 7;
-      // let message1 = {
-      //   roomId: roomIdRef.current,
-      //   type: "updated",
-      //   totalCoins: newTotalCoins,
-      //   playersWithTheirCards: newPlayersWithCards,
-      //   playersWithCoins: newPlayersWithCoins,
-      // };
-      // sendMessage(message1)
-
       let message2 = {
         roomId: roomIdRef.current,
         type: "coup with 7 coins",
@@ -1772,7 +1736,7 @@ const sendMessage = (message) => {
           </div>
         </div>
       )}
-      {inRoom && (
+      {(inRoom && !rulesScreen) && (
         <div className="flex flex-row items-center justify-center min-h-screen bg-white text-gray-900">
           {!inGame && (
             <div
@@ -1845,6 +1809,12 @@ const sendMessage = (message) => {
                 ))}
               </ul>
               <div className="mt-6 flex flex-col gap-4">
+                <button
+                    onClick={()=>{setRulesScreen(true)}}
+                    className="w-full p-2 bg-yellow-300 text-white font-semibold rounded-md hover:bg-yellow-300 transition cursor-pointer"
+                  >
+                    Rules
+                </button>
                 {creator && (
                   <button
                     disabled={members.length !== parseInt(gameStrength)}
@@ -2020,7 +1990,7 @@ const sendMessage = (message) => {
               <div className="w-full border-t border-dashed border-gray-900 my-2"></div>
 
               <div className="flex flex-col gap-2">
-               <div className="mt-2 flex flex-row gap-4">
+               <div className="mt-2 flex flex-row gap-3">
                 <button
                   className={`w-full p-2 text-white font-semibold rounded-md ${
                     (yourTurn && !showSelectLossCharacterBox && !showBlockAcceptOrRejectBox && !showAmbassadorScreen && !showPlayerSelection)
@@ -2050,6 +2020,16 @@ const sendMessage = (message) => {
                   onClick={(enableChallengeButton && playersInGameRef.current.includes(nameRef.current)) ? onClickChallenge : null}
                 >
                   Challenge
+                </button>
+                <button
+                 className={`w-full p-2 text-white font-semibold rounded-md ${
+                  (!showOptions && !showPlayerSelection && !showSelectLossCharacterBox && !showAmbassadorScreen && !showBlockAcceptOrRejectBox)
+                    ? "bg-green-500 hover:bg-green-600 transition cursor-pointer "
+                    : "bg-red-500 cursor-not-allowed"
+                }`}  
+                  onClick={(!showOptions && !showPlayerSelection && !showSelectLossCharacterBox && !showAmbassadorScreen && !showBlockAcceptOrRejectBox) ? () => {setRulesScreen(true)} : null }
+                >
+                  Rules
                 </button>
                 </div>
                 {startTimer && <div className="font-bold whitespace-nowrap items-center flex justify-center"> {`Time left - ${time} sec`}</div>}
@@ -2329,6 +2309,52 @@ const sendMessage = (message) => {
                   </div>
                 )
             )}
+          </div>
+        </div>
+      )}
+     {rulesScreen && (
+      <div className= "absolute flex items-center justify-center">
+       <div className="flex flex-col gap-10 items-center m-4">
+            <div className="overflow-x-auto">
+             <table className="min-w-full border border-gray-300 rounded-lg shadow-lg">
+                <thead className="bg-gray-200">
+                <tr>
+                  <th className="py-1 px-2 border-b text-center">Name</th>
+                  <th className="py-1 px-2 border-b text-center">Action</th>
+                  <th className="py-1 px-2 border-b text-center">Counter Action</th>
+                </tr>
+                </thead>
+              <tbody>
+               {rules.map((rule, index) => (
+                 <tr key={index} className="odd:bg-white even:bg-gray-100">
+                 <td className="py-1 px-2 border-b text-center">{rule.name}</td>
+                 <td className="py-1 px-2 border-b text-center">{rule.action}</td>
+                 <td className="py-1 px-2 border-b text-center">{rule.counterAction}</td>
+                 </tr>
+                ))}
+              </tbody>
+             </table>
+            </div> 
+            <div>
+              <ul className="text-black flex flex-col items-center mt-2">
+                {gamerules.map((item) => (
+                  <li
+                    key={item}
+                      className="px-2 py-2 cursor-pointer rounded-md"
+                    >
+                     {item}
+                  </li>
+                ))}
+              </ul>
+            </div> 
+            <div>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 cursor-pointer"
+              onClick={()=>{setRulesScreen(false)}}
+            >
+              Close
+            </button> 
+            </div>
           </div>
         </div>
       )}
