@@ -93,10 +93,20 @@ function App() {
   ]
 
   const gamerules = [
+    "Its a game of bluff and startergy and can be played within 15 to 30 minutes (Quick game)",
+    "Game includes five cards Duke , Captain , Assassin , Ambassador , Contessa each having thier specific roles",
+    "Apart from this five cards you have 4 actions that you can do",
+    "Important to note that Its not necessary that you should have the card of the action you are doing",
+    "Similarly its not necessary that you should have the particular card to block the action made by someone",
+    "Whenever you lose a challenge you will lose an influence , weather your action is challenged by someone or you challenge thier block",
+    "If your action is blocked by someone and if you accept thier block your action will not take place",
+    "Whenever the action is coup or assassin and if no challenge or block occurs and the time exceeds means the targeted player will lose one influence",
+    "The Income and Super Coup action cannot be challenged or blocked , and Super Coup action does the same as coup action the targetted person will lose one influence",
     "Action button will be enabled only if it is your turn",
     "Challenge and block button will be enabled only if the action taken have Challenged or blocked option",
     "The action can be chllenged or blocked within 12 seconds only",
-    "If a action is taken aggainst a particular player he will have the option to challenge or block first for first 6 seconds then the button to challenge or block will be enabled to all including targetted person also"
+    "If a action is taken aggainst a particular player he will have the option to challenge or block first for first 6 seconds then the button to challenge or block will be enabled to all including targetted person also",
+    "Give a try with your friends once and you will enjoy this game as you get hands on , as mentioned first please play this game with bluff and startergy"
   ]
 
   const showNotification = (msg, type) => {
