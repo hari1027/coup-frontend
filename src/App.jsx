@@ -1384,10 +1384,10 @@ const sendMessage = (message) => {
         }
         sendMessage(message)
       }
-    }
-      if(turnRef.current === nameRef.current){
+      else if(turnRef.current === nameRef.current){
         nextTurnFunction()
       }
+    }
   };
 
   const replaceWithNewCard = async () => {
