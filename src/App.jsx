@@ -600,7 +600,7 @@ const sendMessage = (message) => {
       }
       setTimeout(()=>{
         setInGame(false)
-      },5000)
+      },2000)
     }
   }
 
@@ -2193,7 +2193,7 @@ const sendMessage = (message) => {
                           <button
                             className={`p-2 text-white font-semibold rounded-md ${
                               selectedDeckCard && selectedPlayerCard
-                                ? "bg-blue-500 hover:bg-blue-600"
+                                ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                                 : "bg-gray-400 cursor-not-allowed"
                             }`}
                             disabled={!selectedDeckCard || !selectedPlayerCard}
@@ -2205,7 +2205,7 @@ const sendMessage = (message) => {
                           </button>
                 
                           <button
-                            className="p-2 text-white font-semibold rounded-md bg-red-500 hover:bg-red-600"
+                            className="p-2 text-white font-semibold rounded-md bg-red-500 hover:bg-red-600 cursor-pointer"
                             onClick={() => onConfirmAmbassadorAction(null, null)}
                           >
                             No Swap
