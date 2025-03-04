@@ -357,6 +357,8 @@ const sendMessage = (message) => {
       showNotification(`${resp.person}'s turn`, "info");
       if (resp.person === nameRef.current) {
         setYourTurn(true);
+        setTime2(40)
+        setStartTimer2(true)
       }
       setTurn(resp.person);
       // setSelectedOption("");
@@ -526,6 +528,8 @@ const sendMessage = (message) => {
       setBlockedBy(resp.from);
       if (resp.to === nameRef.current) {
         setShowBlockAcceptOrRejectBox(true);
+        setTime2(40)
+        setStartTimer2(true)
       }
     }
     if (resp.type === "challenge response") {
@@ -586,6 +590,8 @@ const sendMessage = (message) => {
     if(resp.type === "gameOver"){
       showNotification(`Game Over Won by ${resp.winner}`,"info")
       setYourTurn(false)
+      setTime2(40)
+      setStartTimer2(false)
       setTurn("")
       setSelectedOption("")
       setBlockedBy("")
@@ -1198,6 +1204,8 @@ const sendMessage = (message) => {
       };
       sendMessage(message)
       setYourTurn(false);
+      setTime2(40)
+      setStartTimer2(false)
     }
   };
 
@@ -1231,6 +1239,8 @@ const sendMessage = (message) => {
     sendMessage(message)
     setShowPlayerSelection(false);
     setYourTurn(false);
+    setTime2(40)
+    setStartTimer2(false)
   };
 
   const confirmLossCardSelection = async (card) => {
@@ -1258,6 +1268,8 @@ const sendMessage = (message) => {
        nextTurnFunction()
     }
     setShowSelectLossCharacterBox(false);
+    setTime2(40)
+    setStartTimer2(false)
   };
 
   const onClickChallenge = async () => {
@@ -1350,6 +1362,8 @@ const sendMessage = (message) => {
     if (playersWithTheirCardsRef.current[nameRef.current].length === 2) {
       setRulesScreen(false)
       setShowSelectLossCharacterBox(true);
+      setTime2(40)
+      setStartTimer2(true)
     } else {
       let card = playersWithTheirCardsRef.current[nameRef.current].pop();
       let coinsRemaining = playersWithCoinsRef.current[nameRef.current];
@@ -1362,7 +1376,7 @@ const sendMessage = (message) => {
       newDeck.push(card);
       let shuffledDeck = await shuffleDeck(newDeck);
       newPlayersWithCards[nameRef.current] = [];
-      newPlayersWithCoins[nameRef.current] = 0;
+      // newPlayersWithCoins[nameRef.current] = 0;
 
       newPlayersInGame = newPlayersInGame.filter((player) => player !== nameRef.current);
 
@@ -1370,7 +1384,8 @@ const sendMessage = (message) => {
         roomId: roomIdRef.current,
         type: "updated",
         deck: shuffledDeck,
-        totalCoins: totalCoinsRef.current + coinsRemaining,
+        totalCoins: totalCoinsRef.current,
+        // totalCoins: totalCoinsRef.current + coinsRemaining,
         playersWithTheirCards: newPlayersWithCards,
         playersWithCoins: newPlayersWithCoins,
         playersInGame: newPlayersInGame,
@@ -1485,6 +1500,8 @@ const sendMessage = (message) => {
     if (selectedOptionRef.current === "Exchange your card with deck") {
       setRulesScreen(false)
       setShowAmbassadorScreen(true);
+      setTime2(40)
+      setStartTimer2(true)
     }
     if (selectedOptionRef.current === "Coup a player with 14 coins") {
       newPlayersWithCoins[nameRef.current] = newPlayersWithCoins[nameRef.current] - 14;
@@ -1614,6 +1631,8 @@ const sendMessage = (message) => {
     setSelectedPlayerCardIndex(null);
     setSelectedDeckCardIndex(null)
     setShowAmbassadorScreen(false);
+    setTime2(40)
+    setStartTimer2(false)
     let newDeck = deckRef.current;
     let newPlayersWithCards = playersWithTheirCardsRef.current;
     let newPlayersWithCoins = playersWithCoinsRef.current
@@ -1648,6 +1667,8 @@ const sendMessage = (message) => {
 
   const onAcceptBlock = () => {
     setShowBlockAcceptOrRejectBox(false);
+    setTime2(40)
+    setStartTimer2(false)
     let message = {
       roomId: roomIdRef.current,
       type: "accept block",
@@ -1659,6 +1680,8 @@ const sendMessage = (message) => {
 
   const onChallengeBlock = () => {
     setShowBlockAcceptOrRejectBox(false);
+    setTime2(40)
+    setStartTimer2(false)
     let message = {
       roomId: roomIdRef.current,
       type: "challenge block",
@@ -1678,6 +1701,38 @@ const sendMessage = (message) => {
     return () => clearInterval(timer);
   }
   }, [startTimer]);
+
+  const [time2, setTime2] = useState(40);
+  const [startTimer2, setStartTimer2] = useState(false);
+
+  useEffect(() => {
+    if (startTimer2) { 
+      const timer2 = setInterval(() => setTime2((prev) => prev - 1), 1000);
+      return () => clearInterval(timer2);
+    }
+  }, [startTimer2]);
+
+  useEffect(() =>{
+    if(time2 <= 0){
+      if(yourTurn){
+       setYourTurn(false)
+       setShowOptions(false)
+       setShowPlayerSelection(false)
+       nextTurnFunction()
+       setStartTimer2(false)
+       setTime(40)
+      }
+      if(showAmbassadorScreen){
+        onConfirmAmbassadorAction(null, null)
+      }
+      if(showSelectLossCharacterBox){
+        confirmLossCardSelection(playersWithTheirCards[name][0])
+      }
+      if(showBlockAcceptOrRejectBox){
+        onAcceptBlock()
+      }
+    }
+  },[time2])
 
   return (
     <div>
@@ -2001,6 +2056,8 @@ const sendMessage = (message) => {
 
               <div className="flex flex-col gap-2">
                <div className="mt-2 flex flex-row gap-3">
+                {playersInGameRef.current.includes(nameRef.current) && (
+                <>
                 <button
                   className={`w-full p-2 text-white font-semibold rounded-md ${
                     (yourTurn && !showSelectLossCharacterBox && !showBlockAcceptOrRejectBox && !showAmbassadorScreen && !showPlayerSelection)
@@ -2031,6 +2088,8 @@ const sendMessage = (message) => {
                 >
                   Challenge
                 </button>
+                </>
+                )}
                 <button
                  className={`w-full p-2 text-white font-semibold rounded-md ${
                   (!showOptions && !showPlayerSelection && !showSelectLossCharacterBox && !showAmbassadorScreen && !showBlockAcceptOrRejectBox)
@@ -2041,8 +2100,17 @@ const sendMessage = (message) => {
                 >
                   Rules
                 </button>
+                {!playersInGameRef.current.includes(nameRef.current) && (
+                <button
+                 className= "w-full p-2 text-white font-semibold rounded-md bg-green-500 hover:bg-green-600 transition cursor-pointer" 
+                  onClick={leaveRoomServer}
+                >
+                  Leave
+                </button>
+                )}
                 </div>
                 {startTimer && <div className="font-bold whitespace-nowrap items-center flex justify-center"> {`Time left - ${time} sec`}</div>}
+                {startTimer2 && <div className="font-bold whitespace-nowrap items-center flex justify-center"> {`Make a decision in ${time2} sec`}</div>}
               </div>
               {showOptions && (
                 <div className={`absolute flex items-center justify-center ${!isMobile ? "top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : ""} `}>
@@ -2097,7 +2165,7 @@ const sendMessage = (message) => {
                     <ul className="text-black flex flex-col items-center">
                       {(selectedOption === "Steal 2 coins from other player") ? 
                       Object.entries(playersWithCoinsRef.current)
-                      .filter(([member, coins]) => member !== name && coins > 1) // Exclude current player & check coin count
+                      .filter(([member, coins]) => member !== name && playersInGameRef.current.includes(member) && coins > 1) // Exclude current player & check coin count
                       .map(([member]) => (
                         <li
                           key={member}
