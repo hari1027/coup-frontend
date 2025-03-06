@@ -613,6 +613,24 @@ const sendMessage = (message) => {
         setInGame(false)
       },2000)
     }
+    if(resp.type === "leavingWhileOnGame"){
+      showNotification(`${resp.person} left the room while in the game so his cards will be added in the deck`, "info")
+      if (resp.deck !== undefined) {
+        setDeck(resp.deck);
+      }
+      if (resp.totalCoins !== undefined) {
+        setTotalCoins(resp.totalCoins);
+      }
+      if (resp.playersWithTheirCards !== undefined) {
+        setPlayersWithTheirCards(resp.playersWithTheirCards);
+      }
+      if (resp.playersWithCoins !== undefined) {
+        setPlayersWithCoins(resp.playersWithCoins);
+      }
+      if (resp.playersInGame !== undefined) {
+        setPlayersInGame(resp.playersInGame);
+      }
+    }
     return new Promise(resolve => {
       setTimeout(() => {
           console.log("Processed:", resp);
@@ -1773,258 +1791,109 @@ const sendMessage = (message) => {
     }
   },[time2])
 
-  //  // Save state to localStorage before refresh
-  //  useEffect(() => {
-
-  //   const handleBeforeUnload = () => {
-  //     if(nameRef.current !== ""){
-  //       localStorage.setItem("name", nameRef.current);
-  //     }
-  //     localStorage.setItem("gameStrength", gameStrength);
-  //     if(roomIdRef.current !== ""){
-  //        localStorage.setItem("roomId", roomIdRef.current);
-  //     }
-  //     localStorage.setItem("inRoom", JSON.stringify(inRoom));
-  //     localStorage.setItem("creator", JSON.stringify(creatorRef.current));
-  //     if(membersRef.current && membersRef.current.length > 0){
-  //       localStorage.setItem("members", JSON.stringify(membersRef.current));
-  //     }
-  //     localStorage.setItem("inGame", JSON.stringify(inGame));
-  //     // if(Object.keys(streams).length > 0) {
-  //     //   localStorage.setItem("streams", JSON.stringify(streams));
-  //     // }
-  //     // if (Object.keys(userSettings).length > 0) {
-  //     //   localStorage.setItem("userSettings", JSON.stringify(userSettings));
-  //     // }
-  //     if(deckRef.current && deckRef.current.length > 0){
-  //       localStorage.setItem("deck", JSON.stringify(deckRef.current));
-  //     }
-  //     localStorage.setItem("totalCoins", totalCoinsRef.current);
-  //     if (Object.keys(playersWithTheirCardsRef.current).length > 0) {
-  //       localStorage.setItem("playersWithTheirCards", JSON.stringify(playersWithTheirCardsRef.current));
-  //     }
-  //     if (Object.keys(playersWithCoinsRef.current).length > 0) {
-  //       localStorage.setItem("playersWithCoins", JSON.stringify(playersWithCoinsRef.current));
-  //     }
-  //     if (Object.keys(playersInGameRef.current).length > 0) {
-  //       localStorage.setItem("playersInGame", JSON.stringify(playersInGameRef.current));
-  //     }
-  //     localStorage.setItem("yourTurn", JSON.stringify(yourTurn));
-  //     localStorage.setItem("showOptions", JSON.stringify(showOptions));
-  //     if(selectedOptionRef.current !== ""){
-  //       localStorage.setItem("selectedOption", selectedOptionRef.current);
-  //     }
-  //     if(targetedMemberRef.current !== ""){
-  //       localStorage.setItem("targetedMember", targetedMemberRef.current);
-  //     }
-  //     localStorage.setItem("showPlayerSelection", JSON.stringify(showPlayerSelection));
-  //     localStorage.setItem("enableBlockButton", JSON.stringify(enableBlockButton));
-  //     localStorage.setItem("enableChallengeButton", JSON.stringify(enableChallengeButton));
-  //     if(turnRef.current !== ""){
-  //       localStorage.setItem("turn", turnRef.current);
-  //     }
-  //     localStorage.setItem("showSelectLossCharacterBox", JSON.stringify(showSelectLossCharacterBox));
-  //     localStorage.setItem("showAmbassadorScreen", JSON.stringify(showAmbassadorScreen));
-  //     if(selectedDeckCard !== null){
-  //       localStorage.setItem("selectedDeckCard", selectedDeckCard);
-  //     }
-  //     if(selectedPlayerCard !== null){
-  //       localStorage.setItem("selectedPlayerCard", selectedPlayerCard);
-  //     }
-  //     if(selectedDeckCardIndex !== null){
-  //       localStorage.setItem("selectedDeckCardIndex", selectedDeckCardIndex);
-  //     }
-  //     if(selectedPlayerCardIndex !== null){
-  //       localStorage.setItem("selectedPlayerCardIndex", selectedPlayerCardIndex);
-  //     }
-  //     localStorage.setItem("isActionIsBlockedOrChallenged", JSON.stringify(isActionIsBlockedOrChallengedRef.current));
-  //     if(blockedByRef.current !== ""){
-  //       localStorage.setItem("blockedBy", blockedByRef.current);
-  //     }
-  //     localStorage.setItem("showBlockAcceptOrRejectBox", JSON.stringify(showBlockAcceptOrRejectBox));
-  //     localStorage.setItem("waitingToLoseCharacter", JSON.stringify(waitingToLoseCharacterRef.current));
-  //     localStorage.setItem("waitingToLoseCharacterViaChallenge", JSON.stringify(waitingToLoseCharacterViaChallengeRef.current));
-  //     localStorage.setItem("rulesScreen", JSON.stringify(rulesScreen));
-  //     localStorage.setItem("lastWebsocketMsgnumber", lastWebsocketMsgnumber);
-  //     localStorage.setItem("time", time);
-  //     localStorage.setItem("startTimer", JSON.stringify(startTimer));
-  //     localStorage.setItem("time2", time2);
-  //     localStorage.setItem("startTimer2", JSON.stringify(startTimer2));
-
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  // },
-  // [name , gameStrength , roomId , inRoom , creator , members , inGame  , deck , totalCoins , playersWithTheirCards , playersWithCoins , playersInGame
-  //   , yourTurn , showOptions , selectedOption , targetedMember , showPlayerSelection , enableBlockButton , enableChallengeButton , turn 
-  //   , showSelectLossCharacterBox , showAmbassadorScreen , selectedDeckCard , selectedPlayerCard , selectedDeckCardIndex , selectedPlayerCardIndex 
-  //   ,isActionIsBlockedOrChallenged , blockedBy , showBlockAcceptOrRejectBox , waitingToLoseCharacter , waitingToLoseCharacterViaChallenge , rulesScreen , lastWebsocketMsgnumber
-  //   ,time , startTimer , time2 , startTimer2
-  // ]);
-
-  // useEffect(() => {
-  //   if(localStorage.getItem("name")){
-  //     setName(localStorage.getItem("name"))
-  //     localStorage.removeItem("name");
-  //   }
-  //   if(localStorage.getItem("gameStrength")){
-  //     setGameStrength(Number(localStorage.getItem("gameStrength")))
-  //     localStorage.removeItem("gameStrength");
-  //   }
-  //   if(localStorage.getItem("roomId")){
-  //      setRoomId(localStorage.getItem("roomId"))
-  //      localStorage.removeItem("roomId");
-  //   }
-  //   if(JSON.parse(localStorage.getItem("inRoom"))){   
-  //     getUpatedAudioAndVedioOfParticipants();
-  //   }
-  //   if(localStorage.getItem("inRoom")){
-  //     setInRoom(JSON.parse(localStorage.getItem("inRoom")))
-  //     localStorage.removeItem("inRoom");
-  //   }
-  //   if(localStorage.getItem("creator")){
-  //     setCreator(JSON.parse(localStorage.getItem("creator")))
-  //     localStorage.removeItem("creator");
-  //   }
-  //   if(localStorage.getItem("members")){
-  //     setMembers(JSON.parse(localStorage.getItem("members")))
-  //     localStorage.removeItem("members");
-  //   }
-  //   if(localStorage.getItem("inGame")){
-  //     setInGame(JSON.parse(localStorage.getItem("inGame")))
-  //     localStorage.removeItem("inGame");
-  //   }
-  //   // if(localStorage.getItem("streams")){
-  //   //   setStreams(JSON.parse(localStorage.getItem("streams")))
-  //   //   localStorage.removeItem("streams");
-  //   // }
-  //   // if(localStorage.getItem("userSettings")){
-  //   //   setUserSettings(JSON.parse(localStorage.getItem("userSettings")))
-  //   //   localStorage.removeItem("userSettings");
-  //   // }
-  //   if(localStorage.getItem("deck")){
-  //     setDeck(JSON.parse(localStorage.getItem("deck")))
-  //     localStorage.removeItem("deck");
-  //   }
-  //   if(localStorage.getItem("totalCoins")){
-  //     setTotalCoins(Number(localStorage.getItem("totalCoins")))
-  //     localStorage.removeItem("totalCoins");
-  //   }
-  //   if(localStorage.getItem("playersWithTheirCards")){
-  //     setPlayersWithTheirCards(JSON.parse(localStorage.getItem("playersWithTheirCards")))
-  //     localStorage.removeItem("playersWithTheirCards");
-  //   }
-  //   if(localStorage.getItem("playersWithCoins")){
-  //     setPlayersWithCoins(JSON.parse(localStorage.getItem("playersWithCoins")))
-  //     localStorage.removeItem("playersWithCoins");
-  //   }
-  //   if(localStorage.getItem("playersInGame")){
-  //     setPlayersInGame(JSON.parse(localStorage.getItem("playersInGame")))
-  //     localStorage.removeItem("playersInGame");
-  //   }
-  //   if(localStorage.getItem("yourTurn")){
-  //     setYourTurn(JSON.parse(localStorage.getItem("yourTurn")))
-  //     localStorage.removeItem("yourTurn");
-  //   }
-  //   if(localStorage.getItem("showOptions")){
-  //     setShowOptions(JSON.parse(localStorage.getItem("showOptions")))
-  //     localStorage.removeItem("showOptions");
-  //   }
-  //   if(localStorage.getItem("selectedOption")){
-  //     setSelectedOption(localStorage.getItem("selectedOption"))
-  //     localStorage.removeItem("selectedOption");
-  //   }
-  //   if(localStorage.getItem("targetedMember")){
-  //     setTargetedMember(localStorage.getItem("targetedMember"))
-  //     localStorage.removeItem("targetedMember");
-  //   }
-  //   if(localStorage.getItem("showPlayerSelection")){
-  //     setShowPlayerSelection(JSON.parse(localStorage.getItem("showPlayerSelection")))
-  //     localStorage.removeItem("showPlayerSelection");
-  //   }
-  //   if(localStorage.getItem("enableBlockButton")){
-  //     setEnableBlockButton(JSON.parse(localStorage.getItem("enableBlockButton")))
-  //     localStorage.removeItem("enableBlockButton");
-  //   }
-  //   if(localStorage.getItem("enableChallengeButton")){
-  //     setEnableChallengeButton(JSON.parse(localStorage.getItem("enableChallengeButton")))
-  //     localStorage.removeItem("enableChallengeButton");
-  //   }
-  //   if(localStorage.getItem("turn")){
-  //     setTurn(localStorage.getItem("turn"))
-  //     localStorage.removeItem("turn");
-  //   }
-  //   if(localStorage.getItem("showSelectLossCharacterBox")){
-  //     setShowSelectLossCharacterBox(JSON.parse(localStorage.getItem("showSelectLossCharacterBox")))
-  //     localStorage.removeItem("showSelectLossCharacterBox");
-  //   }
-  //   if(localStorage.getItem("showAmbassadorScreen")){
-  //     setShowAmbassadorScreen(JSON.parse(localStorage.getItem("showAmbassadorScreen")))
-  //     localStorage.removeItem("showAmbassadorScreen");
-  //   }
-  //   if(localStorage.getItem("selectedDeckCard")){
-  //     setSelectedDeckCard(localStorage.getItem("selectedDeckCard"))
-  //     localStorage.removeItem("selectedDeckCard");
-  //   }
-  //   if(localStorage.getItem("selectedPlayerCard")){
-  //     setSelectedPlayerCard(localStorage.getItem("selectedPlayerCard"))
-  //     localStorage.removeItem("selectedPlayerCard");
-  //   }
-  //   if(localStorage.getItem("selectedDeckCardIndex")){
-  //     setSelectedDeckCardIndex(Number(localStorage.getItem("selectedDeckCardIndex")))
-  //     localStorage.removeItem("selectedDeckCardIndex");
-  //   }
-  //   if(localStorage.getItem("selectedPlayerCardIndex")){
-  //     setSelectedPlayerCardIndex(Number(localStorage.getItem("selectedPlayerCardIndex")))
-  //     localStorage.removeItem("selectedPlayerCardIndex");
-  //   }
-  //   if(localStorage.getItem("isActionIsBlockedOrChallenged")){
-  //     setIsActionIsBlockedOrChallenged(JSON.parse(localStorage.getItem("isActionIsBlockedOrChallenged")))
-  //     localStorage.removeItem("isActionIsBlockedOrChallenged");
-  //   }
-  //   if(localStorage.getItem("blockedBy")){
-  //     setBlockedBy(JSON.parse(localStorage.getItem("blockedBy")))
-  //     localStorage.removeItem("blockedBy");
-  //   }
-  //   if(localStorage.getItem("showBlockAcceptOrRejectBox")){
-  //     setShowBlockAcceptOrRejectBox(JSON.parse(localStorage.getItem("showBlockAcceptOrRejectBox")))
-  //     localStorage.removeItem("showBlockAcceptOrRejectBox");
-  //   }
-  //   if(localStorage.getItem("waitingToLoseCharacter")){
-  //     setWaitingToLoseCharacter(JSON.parse(localStorage.getItem("waitingToLoseCharacter")))
-  //     localStorage.removeItem("waitingToLoseCharacter");
-  //   }
-  //   if(localStorage.getItem("waitingToLoseCharacterViaChallenge")){
-  //     setWaitingToLoseCharacterViaChallenge(JSON.parse(localStorage.getItem("waitingToLoseCharacterViaChallenge")))
-  //     localStorage.removeItem("waitingToLoseCharacterViaChallenge");
-  //   }
-  //   if(localStorage.getItem("rulesScreen")){
-  //     setRulesScreen(JSON.parse(localStorage.getItem("rulesScreen")))
-  //     localStorage.removeItem("rulesScreen");
-  //   }
-  //   if(localStorage.getItem("lastWebsocketMsgnumber")){
-  //     setLastWebsocketMsgnumber(Number(localStorage.getItem("lastWebsocketMsgnumber")))
-  //     localStorage.removeItem("lastWebsocketMsgnumber");
-  //   }
-  //   if(localStorage.getItem("time")){
-  //     setTime(Number(localStorage.getItem("time")))
-  //     localStorage.removeItem("time");
-  //   }
-  //   if(localStorage.getItem("startTimer")){
-  //     setStartTimer(JSON.parse(localStorage.getItem("startTimer")))
-  //     localStorage.removeItem("startTimer");
-  //   }
-  //   if(localStorage.getItem("time2")){
-  //     setTime2(Number(localStorage.getItem("time2")))
-  //     localStorage.removeItem("time2");
-  //   }
-  //   if(localStorage.getItem("startTimer2")){
-  //     setStartTimer2(JSON.parse(localStorage.getItem("startTimer2")))
-  //     localStorage.removeItem("startTimer2");
-  //   }
-
-  // }, []);
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if(inGame && playersInGameRef.current.includes(nameRef.current)){
+          let newDeck = deckRef.current;
+          let newPlayersWithCards = playersWithTheirCardsRef.current;
+          let newPlayersWithCoins = playersWithCoinsRef.current;
+          let newPlayersInGame = playersInGameRef.current;
+    
+          for(let i = 0 ; i < playersWithTheirCardsRef.current[nameRef.current].length ; i++){
+            let card = playersWithTheirCardsRef.current[nameRef.current][i]
+            newDeck.push(card);
+          }
+  
+          let shuffledDeck = await shuffleDeck(newDeck);
+          newPlayersWithCards[nameRef.current] = [];
+          newPlayersInGame = newPlayersInGame.filter((player) => player !== nameRef.current);
+          
+          let message = {
+            roomId: roomIdRef.current,
+            type: "leavingWhileOnGame",
+            person: nameRef.current,
+            deck: shuffledDeck,
+            totalCoins: totalCoinsRef.current,
+            playersWithTheirCards: newPlayersWithCards,
+            playersWithCoins: newPlayersWithCoins,
+            playersInGame: newPlayersInGame,
+          };
+          sendMessage(message)
+  
+          if(newPlayersInGame.length < 2){
+            let message2 = {
+              roomId : roomIdRef.current,
+              type : "gameOver",
+              winner : newPlayersInGame[0]
+            }
+            sendMessage(message2)
+          } else {
+            let person;
+            let playerIndex = playersInGameRef.current.indexOf(nameRef.current);
+            if (
+              playersInGameRef.current[playerIndex + 1] !== undefined &&
+              playersInGameRef.current[playerIndex + 1] !== null
+            ) {
+              person = playersInGameRef.current[playerIndex + 1];
+            } else {
+              person = playersInGameRef.current[0];
+            }
+            let message3 = {
+              roomId: roomIdRef.current,
+              type: "turn",
+              person: person,
+            };
+            sendMessage(message3)
+          }
+        
+          let url = 'https://coup-backend.onrender.com/leave-room'
+          let roomId = roomIdRef.current
+          let name = nameRef.current
+          let type = "leave"
+          const data = JSON.stringify({ roomId, name, type });
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: data,
+            keepalive: true,
+          });
+      }
+      else if (inRoom) {
+        if(creatorRef.current){
+          let url = `https://coup-backend.onrender.com/delete-room/${roomIdRef.current}`
+          fetch(url, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            keepalive: true,
+          });
+        }else {
+          let url = 'https://coup-backend.onrender.com/leave-room'
+          let roomId = roomIdRef.current
+          let name = nameRef.current
+          let type = "leave"
+          const data = JSON.stringify({ roomId, name, type });
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: data,
+            keepalive: true,
+          });
+        }
+      }
+    };
+  
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [inRoom , inGame , yourTurn]);
 
   return (
     <div>
